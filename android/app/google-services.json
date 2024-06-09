@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "924934731501",
+    "project_id": "dronvolador1-b9f04",
+    "storage_bucket": "dronvolador1-b9f04.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:924934731501:android:2c2d79347e7762c1dafee4",
+        "android_client_info": {
+          "package_name": "com.example.dronvolador1"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA7lJJgVNdt28tnDoblUj7Lniw4QyR0YL0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

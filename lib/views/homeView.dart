@@ -12,7 +12,8 @@ class _HomeViewState extends State<HomeView> {
   final AuthService _authService = AuthService();
   final _bluetooth = FlutterBluetoothSerial.instance;
   BluetoothConnection? _connection;
-  bool _isConnecting = false;
+  bool _isConnecting =
+      false; // Asegúrate de que esta variable es de tipo 'bool' y no 'bool?'
   BluetoothDevice? _deviceConnected;
   List<BluetoothDevice> _devices = [];
 
@@ -23,6 +24,14 @@ class _HomeViewState extends State<HomeView> {
   }
 
   void _getDevices() async {
+    // Ensure Bluetooth is enabled
+    bool isEnabled = await _bluetooth.isEnabled ??
+        false; // Proporcionar un valor predeterminado
+    if (!isEnabled) {
+      await _bluetooth.requestEnable();
+    }
+
+    // Get bonded devices
     var res = await _bluetooth.getBondedDevices();
     setState(() => _devices = res);
 
@@ -95,6 +104,7 @@ class _HomeViewState extends State<HomeView> {
   }
 
   void _selectDevice() async {
+    _getDevices();
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
@@ -106,17 +116,30 @@ class _HomeViewState extends State<HomeView> {
                       Navigator.pop(context);
                       setState(() => _isConnecting = true);
 
-                      _connection =
-                          await BluetoothConnection.toAddress(device.address);
-                      setState(() {
-                        _deviceConnected = device;
-                        _isConnecting = false;
-                      });
+                      try {
+                        _connection =
+                            await BluetoothConnection.toAddress(device.address);
+                        setState(() {
+                          _deviceConnected = device;
+                          _isConnecting = false;
+                        });
+                      } catch (e) {
+                        setState(() => _isConnecting = false);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Error al conectar: $e')),
+                        );
+                      }
                     },
                   ))
               .toList(),
         );
       },
     );
+  }
+
+  @override
+  void dispose() {
+    _connection?.dispose();
+    super.dispose();
   }
 }

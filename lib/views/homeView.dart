@@ -125,22 +125,22 @@ class _HomeViewState extends State<HomeView> {
     switch (command.toLowerCase()) {
       case 'power on.' || 'power on' || 'power on!':
         print("Se envió el comando de encender a través de voz");
-        _sendData('1');
+        _sendData(1);
         _showNotification('Encender motores');
         break;
       case 'power off.' || 'power off' || 'power off!':
         print("Se envió el comando de apagar a través de voz");
-        _sendData('2');
+        _sendData(2);
         _showNotification('Apagar motores');
         break;
       case 'go up.' || 'go up' || 'go up!':
         print("Se envió el comando de subir a través de voz");
-        _sendData('3');
+        _sendData(3);
         _showNotification('Subir');
         break;
       case 'go down.' || 'go down' || 'go down!':
         print("Se envió el comando de bajar a través de voz");
-        _sendData('4');
+        _sendData(4);
         _showNotification('Bajar');
         break;
       default:

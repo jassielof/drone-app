@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
@@ -24,38 +23,36 @@ class _HomeViewState extends State<HomeView> {
   }
 
   void _getDevices() async {
-    // Ensure Bluetooth is enabled
     bool isEnabled = await _bluetooth.isEnabled ?? false;
     if (!isEnabled) {
       await _bluetooth.requestEnable();
     }
-
-    // Get bonded devices
     var res = await _bluetooth.getBondedDevices();
     setState(() => _devices = res);
   }
 
-  void _sendData(String data) {
-    if (_connection?.isConnected ?? false) {
-      print('Sending data: $data');
-      _connection?.output.add(Uint8List.fromList(utf8.encode(data + "\r\n")));
-      _connection?.output.allSent.then((_) {
-        print('Data sent');
-      }).catchError((error) {
-        print('Error sending data: $error');
-      });
+  void _sendData(int data) async {
+    if (_connection != null && _connection!.isConnected) {
+      Uint8List command = Uint8List(1);
+      command[0] = data; // Enviamos directamente el byte correspondiente
+      _connection!.output.add(command);
+      await _connection!.output.allSent;
     } else {
-      print('No connection established');
+      print('Cannot send data, no device connected.');
     }
   }
 
   void _disconnect() async {
-    await _connection?.close();
-    setState(() {
-      _deviceConnected = null;
-      _connection = null;
-    });
-    print('Device disconnected');
+    if (_connection != null) {
+      await _connection?.close();
+      setState(() {
+        _deviceConnected = null;
+        _connection = null;
+      });
+      print('Device disconnected');
+    } else {
+      print('No connection to disconnect');
+    }
   }
 
   @override
@@ -95,19 +92,19 @@ class _HomeViewState extends State<HomeView> {
               : Column(
                   children: [
                     ElevatedButton(
-                      onPressed: () => _sendData('1'),
+                      onPressed: () => _sendData(1),
                       child: Text('Prender Motores'),
                     ),
                     ElevatedButton(
-                      onPressed: () => _sendData('2'),
+                      onPressed: () => _sendData(2),
                       child: Text('Apagar Motores'),
                     ),
                     ElevatedButton(
-                      onPressed: () => _sendData('3'),
+                      onPressed: () => _sendData(3),
                       child: Text('Subir'),
                     ),
                     ElevatedButton(
-                      onPressed: () => _sendData('4'),
+                      onPressed: () => _sendData(4),
                       child: Text('Bajar'),
                     ),
                   ],
@@ -128,7 +125,6 @@ class _HomeViewState extends State<HomeView> {
                     onTap: () async {
                       Navigator.pop(context);
                       setState(() => _isConnecting = true);
-
                       try {
                         _connection =
                             await BluetoothConnection.toAddress(device.address);

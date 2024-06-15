@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:dronvolador1/services/auth_service.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
-import 'package:flutter_tts/flutter_tts.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class HomeView extends StatefulWidget {
   @override
@@ -18,31 +16,13 @@ class _HomeViewState extends State<HomeView> {
   bool _isConnecting = false;
   BluetoothDevice? _deviceConnected;
   List<BluetoothDevice> _devices = [];
-  final FlutterTts _flutterTts = FlutterTts();
   String _currentCommand = '';
   double _voiceVolume = 0.0;
-  late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 
   @override
   void initState() {
     super.initState();
     _getDevices();
-    _initializeTts();
-    _initializeNotifications();
-  }
-
-  Future<void> _initializeNotifications() async {
-    flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-    const AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings('app_icon');
-    final InitializationSettings initializationSettings =
-        InitializationSettings(android: initializationSettingsAndroid);
-    await flutterLocalNotificationsPlugin.initialize(initializationSettings);
-  }
-
-  Future<void> _initializeTts() async {
-    await _flutterTts.awaitSpeakCompletion(true);
-    await _flutterTts.setLanguage('es-ES');
   }
 
   void _getDevices() async {
@@ -126,40 +106,23 @@ class _HomeViewState extends State<HomeView> {
       case 'power on.' || 'power on' || 'power on!':
         print("Se envió el comando de encender a través de voz");
         _sendData(1);
-        _showNotification('Encender motores');
         break;
       case 'power off.' || 'power off' || 'power off!':
         print("Se envió el comando de apagar a través de voz");
         _sendData(2);
-        _showNotification('Apagar motores');
         break;
       case 'go up.' || 'go up' || 'go up!':
         print("Se envió el comando de subir a través de voz");
         _sendData(3);
-        _showNotification('Subir');
         break;
       case 'go down.' || 'go down' || 'go down!':
         print("Se envió el comando de bajar a través de voz");
         _sendData(4);
-        _showNotification('Bajar');
         break;
       default:
         print("Comando no reconocido");
         break;
     }
-  }
-
-  Future<void> _showNotification(String command) async {
-    const AndroidNotificationDetails androidPlatformChannelSpecifics =
-        AndroidNotificationDetails('your_channel_id', 'your_channel_name',
-            importance: Importance.max,
-            priority: Priority.high,
-            ticker: 'ticker');
-    const NotificationDetails platformChannelSpecifics =
-        NotificationDetails(android: androidPlatformChannelSpecifics);
-    await flutterLocalNotificationsPlugin.show(
-        0, 'Comando aceptado', command, platformChannelSpecifics,
-        payload: 'item x');
   }
 
   @override
